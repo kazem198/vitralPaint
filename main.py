@@ -66,7 +66,7 @@ while True:
 
         #     print("section")
 
-        elif finger[1]:
+        elif finger[1] and lmList[8][1] > 150:
             x, y = lmList[8][0:2]
 
             if px == 0 and py == 0:

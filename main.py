@@ -11,7 +11,7 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 colorPaint = (255, 0, 0)
 px = 0
 py = 0
-imgBackground = np.ones((720, 1280, 3), np.uint8)*255
+imgBackground = np.zeros((720, 1280, 3), np.uint8)
 ############################################################
 
 imgHeaders = []
@@ -42,6 +42,7 @@ while True:
         if finger[1] and finger[2]:
             x1, y1 = lmList[8][0:2]
             x2, y2 = lmList[12][0:2]
+            px, py = 0, 0
 
             cv2.rectangle(img, (x1, y1),
                           (x2, y2), colorPaint, cv2.FILLED)
@@ -59,7 +60,7 @@ while True:
                     colorPaint = (0, 255, 0)
 
                 elif 1100 < centerX < 1300:
-                    colorPaint = (255, 255, 255)
+                    colorPaint = (0, 0, 0)
 
         #
         #     cv2.circle(img, (centerX, centerY), 5, (0, 0, 0), cv2.FILLED)
@@ -74,7 +75,7 @@ while True:
                 py = y
 
             cv2.circle(img, (x, y), 30, colorPaint, cv2.FILLED)
-            if colorPaint == (255, 255, 255):
+            if colorPaint == (0, 0, 0):
                 cv2.line(img, (x, y), (px, py), colorPaint, 70)
                 cv2.line(imgBackground, (x, y), (px, py), colorPaint, 70)
             else:
@@ -85,12 +86,17 @@ while True:
 
         #     print("draw")
 
+    imgGray = cv2.cvtColor(imgBackground, cv2.COLOR_BGR2GRAY)
+    _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
+    imgInv = cv2.cvtColor(imgInv, cv2.COLOR_GRAY2BGR)
+    img = cv2.bitwise_and(img, imgInv)
+    img = cv2.bitwise_or(img, imgBackground)
 
 #     add = cv2.addWeighted(img, .5, imgBackground, .5, 0)
-    add = cv2.bitwise_and(img, imgBackground)
+
     cv2.imshow("img", img)
-    cv2.imshow("imgBackground", imgBackground)
-    cv2.imshow("add", add)
+    cv2.imshow("imgBackground", imgInv)
+
     if cv2.waitKey(1) & 0xFF == ord("q"):
         cv2.destroyAllWindows()
         break
